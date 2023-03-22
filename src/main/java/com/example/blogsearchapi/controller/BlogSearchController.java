@@ -5,9 +5,6 @@ import com.example.blogsearchapi.dto.BlogSearchResponse;
 import com.example.blogsearchapi.dto.PopularSearchResponse;
 import com.example.blogsearchapi.service.BlogSearchService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Parameters;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -16,7 +13,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.api.annotations.ParameterObject;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -29,20 +25,6 @@ import javax.validation.Valid;
 public class BlogSearchController {
 
     private final BlogSearchService blogSearchService;
-
-//    @GetMapping("/api/search")
-//    public String search(
-//            @RequestParam(name = "query", required = false) String query,
-//            @RequestParam(name = "sort", required = false, defaultValue = "accuracy") String sort,
-//            @RequestParam(name = "page", required = false, defaultValue = "1") Integer page,
-//            @RequestParam(name = "size", required = false, defaultValue = "10") Integer size) {
-//        log.info(query);
-//        log.info(sort);
-//        log.info(page + "");
-//        log.info(size + "");
-//        blogSearchService.search(query, sort, page, size);
-//        return "search";
-//    }
 
     @Operation(summary = "블로그 검색", description = "카카오/네이버 OPEN API와 연동하여 블로그를 검색하는 API 입니다.")
     @GetMapping("/api/search")

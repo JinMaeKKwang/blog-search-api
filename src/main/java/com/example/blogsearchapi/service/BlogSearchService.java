@@ -12,6 +12,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -40,25 +41,12 @@ public class BlogSearchService {
     @Autowired
     SearchWordRepository searchWordRepository;
 
+    @Transactional
     public BlogSearchResponse search(BlogSearchRequest blogSearchReq) {
-        Optional<SearchWord> optionalSearchWord = searchWordRepository.findByName(blogSearchReq.getQuery());
-        if (optionalSearchWord.isPresent()) {
-            SearchWord searchWord = optionalSearchWord.get();
-            searchWord.updateCount();
-            searchWordRepository.save(searchWord);
-        } else {
-            SearchWord searchWord = SearchWord.builder()
-                    .name(blogSearchReq.getQuery())
-                    .createdName("Search-API")
-                    .createdAt(LocalDateTime.now())
-                    .lastModifiedName("Search-API")
-                    .lastModifiedAt(LocalDateTime.now())
-                    .build();
-            searchWordRepository.save(searchWord);
-        }
+        saveOrUpdateSearchWord(blogSearchReq);
 
         BlogSearchResponse blogSearchResponse = null;
-        boolean flag = false;
+        boolean isFailedKakaoApi = false;
         try {
             ResponseEntity<KakaoBlogSearchRes> kakaoResponseEntity = callKakaoSearchApi(blogSearchReq);
             log.info(kakaoResponseEntity.getStatusCode().toString());
@@ -71,10 +59,10 @@ public class BlogSearchService {
         } catch (HttpServerErrorException e) {
             log.error(e.getStatusCode().toString());
             log.error(e.getResponseBodyAsString());
-            flag = true;
+            isFailedKakaoApi = true;
         }
 
-        if (flag) {
+        if (isFailedKakaoApi) {
             try {
                 ResponseEntity<NaverBlogSearchRes> naverResponseEntity = callNaverSearchApi(blogSearchReq);
                 log.info(naverResponseEntity.getStatusCode().toString());
@@ -92,6 +80,25 @@ public class BlogSearchService {
         }
 
         return blogSearchResponse;
+    }
+
+    @Transactional
+    public void saveOrUpdateSearchWord(BlogSearchRequest blogSearchReq) {
+        Optional<SearchWord> optionalSearchWord = searchWordRepository.findByName(blogSearchReq.getQuery());
+        if (optionalSearchWord.isPresent()) {
+            SearchWord searchWord = optionalSearchWord.get();
+            searchWord.updateCount();
+            searchWordRepository.save(searchWord);
+        } else {
+            SearchWord searchWord = SearchWord.builder()
+                    .name(blogSearchReq.getQuery())
+                    .createdName("Search-API")
+                    .createdAt(LocalDateTime.now())
+                    .lastModifiedName("Search-API")
+                    .lastModifiedAt(LocalDateTime.now())
+                    .build();
+            searchWordRepository.save(searchWord);
+        }
     }
 
     public ResponseEntity<KakaoBlogSearchRes> callKakaoSearchApi(BlogSearchRequest blogSearchReq) {
