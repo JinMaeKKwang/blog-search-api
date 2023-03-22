@@ -4,6 +4,9 @@
 
 카카오/네이버 OPEN API를 활용하여 블로그 검색결과를 응답하는 API.
 
+### 빌드 결과물 
+https://github.com/JinMaeKKwang/blog-search-api-build
+
 ### Swagger UI
  http://localhost:8080/swagger-ui/index.html
 
